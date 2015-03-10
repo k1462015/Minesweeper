@@ -1,4 +1,4 @@
-package indiviual;
+package pairExercises;
 
 import java.util.Random;
 
