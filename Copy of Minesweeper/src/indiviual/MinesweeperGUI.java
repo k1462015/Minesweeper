@@ -32,21 +32,22 @@ public class MinesweeperGUI extends JFrame {
 	private Minesweeper m;
 	private JPanel board;
 	private JToggleButton[][] squaresArray;
+	private boolean gameStatus;
 
 	public MinesweeperGUI(Minesweeper m) {
 		super("Minesweeper");
 		this.m = m;
-//		try {
-//			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-//				if ("Nimbus".equals(info.getName())) {
-//					UIManager.setLookAndFeel(info.getClassName());
-//					break;
-//				}
-//			}
-//		} catch (Exception e) {
-//			// If Nimbus is not available, you can set the GUI to another look
-//			// and feel.
-//		}
+		// try {
+		// for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		// if ("Nimbus".equals(info.getName())) {
+		// UIManager.setLookAndFeel(info.getClassName());
+		// break;
+		// }
+		// }
+		// } catch (Exception e) {
+		// // If Nimbus is not available, you can set the GUI to another look
+		// // and feel.
+		// }
 		initUi();
 	}
 
@@ -164,11 +165,10 @@ public class MinesweeperGUI extends JFrame {
 		constructBoard();
 
 		// Sets up main JFrame
-		
-		getContentPane().setBackground(Color.CYAN);
+		getContentPane().setBackground(Color.DARK_GRAY);
 		setVisible(true);
-
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		pack();
 
 	}
 
@@ -177,6 +177,21 @@ public class MinesweeperGUI extends JFrame {
 		board = new JPanel();
 		board.setOpaque(false);
 		board.setLayout(new GridLayout(m.getHeight(), m.getWidth()));
+		gameStatus = true;
+
+		// Loads button icon
+		Image newimg = null;
+		try {
+			Image image = ImageIO
+					.read(new URL(
+							"https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Box_Grey.png"));
+			// Resizes icon
+			newimg = image.getScaledInstance(50, 50,
+					java.awt.Image.SCALE_SMOOTH);
+
+		} catch (Exception e) {
+			System.out.println("Failed to get button icon");
+		}
 
 		// Adds squares to board
 		squaresArray = new JToggleButton[m.getHeight()][m.getWidth()];
@@ -191,64 +206,75 @@ public class MinesweeperGUI extends JFrame {
 
 					@Override
 					public void mousePressed(MouseEvent e) {
-						if (e.getClickCount() == 1) {
-							if (SwingUtilities.isRightMouseButton(e)) {
-								if (!temp.getText().equals("F")) {
-									temp.setText("F");
-								} else {
-									temp.setText("");
-								}
-
-							}
-
-							if (SwingUtilities.isLeftMouseButton(e)) {
-								
-
-								if (!temp.getText().equals("F")) {
+						if (gameStatus == true) {
+							temp.setIcon(null);
+							if (e.getClickCount() == 1) {
+								if (SwingUtilities.isRightMouseButton(e)) {
 									if (temp.isEnabled()) {
-
-										if (m.squareStatus[row][column] == SquareStatus.MINE) {
-											System.out.println("Click on mine");
-											gameOver();
+										if (!temp.getText().equals("F")) {
+											temp.setText("F");
+										} else {
+											temp.setText("");
 										}
-
-										else {
-											if (m.squareStatus[row][column] == SquareStatus.ZERO) {
-												System.out
-														.println("Clicked on 0");
-												disableButton(temp);
-												revealAround(row, column);
-												repaint();
-											} else {
-												System.out
-														.println("Clicked on square 1-8");
-												temp.setText(m.squareStatus[row][column]
-														.ordinal() + "");
-												disableButton(temp);
-												repaint();
-											}
-										}
-
 									}
 
 								}
+
+								if (SwingUtilities.isLeftMouseButton(e)) {
+
+									if (!temp.getText().equals("F")) {
+										if (temp.isEnabled()) {
+
+											if (m.squareStatus[row][column] == SquareStatus.MINE) {
+												System.out
+														.println("Click on mine");
+												gameOver();
+											}
+
+											else {
+												if (m.squareStatus[row][column] == SquareStatus.ZERO) {
+													System.out
+															.println("Clicked on 0");
+													disableButton(temp);
+													revealAround(row, column,
+															false);
+													repaint();
+												} else {
+													System.out
+															.println("Clicked on square 1-8");
+													temp.setText(m.squareStatus[row][column]
+															.ordinal() + "");
+													disableButton(temp);
+													repaint();
+												}
+											}
+
+										}
+
+									}
+								}
+
 							}
 
-						}
-
-						if (e.getClickCount() == 2) {
-							if (!temp.isEnabled() && checkNumberOfFlags(row,column) == m.squareStatus[row][column].ordinal()) {
-								DoublerevealAround(row, column);
-								repaint();
-							}else{
-								System.out.println("Not enough flags");
+							if (e.getClickCount() == 2) {
+								if (!temp.isEnabled()
+										&& checkNumberOfFlags(row, column) == m.squareStatus[row][column]
+												.ordinal()) {
+									revealAround(row, column, true);
+									repaint();
+								} else {
+									System.out.println("Not enough flags");
+								}
 							}
 						}
 
 					}
 
 				});
-				temp.setFont(new Font("Century Gothic",Font.BOLD,15));
+				temp.setFont(new Font("Century Gothic", Font.BOLD, 15));
+				temp.setContentAreaFilled(false);
+				temp.setBorderPainted(false);
+				temp.setIcon(new ImageIcon(newimg));
 				squaresArray[i][j] = temp;
 				board.add(temp);
 			}
@@ -258,13 +284,14 @@ public class MinesweeperGUI extends JFrame {
 	}
 
 	public void squarePress(int row, int column) {
+		squaresArray[row][column].setIcon(null);
 		System.out.println("Checking before press");
 		if (squaresArray[row][column].isEnabled()
 				&& !squaresArray[row][column].getText().equals("F")) {
 			if (m.squareStatus[row][column] == SquareStatus.ZERO) {
 				System.out.println("Zero detected");
 				disableButton(squaresArray[row][column]);
-				revealAround(row, column);
+				revealAround(row, column, false);
 			} else {
 				System.out.println("Non-zero");
 				squaresArray[row][column].setText(m.squareStatus[row][column]
@@ -275,7 +302,7 @@ public class MinesweeperGUI extends JFrame {
 
 	}
 
-	public void revealAround(int row, int column) {
+	public void revealAround(int row, int column, boolean isDoubleClick) {
 		int topx = row - 1;
 		int topy = column;
 
@@ -305,50 +332,81 @@ public class MinesweeperGUI extends JFrame {
 			if (topx >= 0 && topx < m.getHeight() && topy >= 0
 					&& topy < m.getWidth()) {
 				System.out.println("Checking top");
-				squarePress(topx, topy);
-
+				if (isDoubleClick) {
+					DoublesquarePress(topx, topy);
+				} else {
+					squarePress(topx, topy);
+				}
 			}
 			if (bottomx >= 0 && bottomx < m.getHeight() && bottomy >= 0
 					&& bottomy < m.getWidth()) {
 				System.out.println("Checking bottom");
 				System.out.println("Row " + bottomx + " column " + bottomy);
-				squarePress(bottomx, bottomy);
+				if (isDoubleClick) {
+					DoublesquarePress(bottomx, bottomy);
+				} else {
+					squarePress(bottomx, bottomy);
+				}
 
 			}
 			if (rightx >= 0 && rightx < m.getHeight() && righty >= 0
 					&& righty < m.getWidth()) {
 				System.out.println("Checking right");
-				squarePress(rightx, righty);
+				if (isDoubleClick) {
+					DoublesquarePress(rightx, righty);
+				} else {
+					squarePress(rightx, righty);
+				}
 
 			}
 			if (leftx >= 0 && leftx < m.getHeight() && lefty >= 0
 					&& lefty < m.getWidth()) {
 				System.out.println("Checking left");
-				squarePress(leftx, lefty);
+				if (isDoubleClick) {
+					DoublesquarePress(leftx, lefty);
+				} else {
+					squarePress(leftx, lefty);
+				}
 
 			}
 			if (topRightx >= 0 && topRightx < m.getHeight() && topRighty >= 0
 					&& topRighty < m.getWidth()) {
 				System.out.println("Checking top Right");
-				squarePress(topRightx, topRighty);
+				if (isDoubleClick) {
+					DoublesquarePress(topRightx, topRighty);
+				} else {
+					squarePress(topRightx, topRighty);
+				}
 
 			}
 			if (topLeftx >= 0 && topLeftx < m.getHeight() && topLefty >= 0
 					&& topLefty < m.getWidth()) {
 				System.out.println("Checking top left");
-				squarePress(topLeftx, topLefty);
+				if (isDoubleClick) {
+					DoublesquarePress(topLeftx, topLefty);
+				} else {
+					squarePress(topLeftx, topLefty);
+				}
 
 			}
 			if (bottomRightx >= 0 && bottomRightx < m.getHeight()
 					&& bottomRighty >= 0 && bottomRighty < m.getWidth()) {
 				System.out.println("Checking bottom right");
-				squarePress(bottomRightx, bottomRighty);
+				if (isDoubleClick) {
+					DoublesquarePress(bottomRightx, bottomRighty);
+				} else {
+					squarePress(bottomRightx, bottomRighty);
+				}
 
 			}
 			if (bottomLeftx >= 0 && bottomLeftx < m.getHeight()
 					&& bottomLefty >= 0 && bottomLefty < m.getWidth()) {
 				System.out.println("Checking bottom left");
-				squarePress(bottomLeftx, bottomLefty);
+				if (isDoubleClick) {
+					DoublesquarePress(bottomLeftx, bottomLefty);
+				} else {
+					squarePress(bottomLeftx, bottomLefty);
+				}
 
 			}
 		}
@@ -356,6 +414,7 @@ public class MinesweeperGUI extends JFrame {
 
 	public void DoublesquarePress(int row, int column) {
 		System.out.println("Checking before press");
+		squaresArray[row][column].setIcon(null);
 		if (squaresArray[row][column].isEnabled()
 				&& !squaresArray[row][column].getText().equals("F")) {
 			if (m.squareStatus[row][column] == SquareStatus.MINE) {
@@ -364,7 +423,7 @@ public class MinesweeperGUI extends JFrame {
 				if (m.squareStatus[row][column] == SquareStatus.ZERO) {
 					System.out.println("Zero detected");
 					disableButton(squaresArray[row][column]);
-					DoublerevealAround(row, column);
+					revealAround(row, column, true);
 				} else {
 					System.out.println("Non-zero");
 					squaresArray[row][column]
@@ -374,85 +433,6 @@ public class MinesweeperGUI extends JFrame {
 			}
 		}
 
-	}
-
-	public void DoublerevealAround(int row, int column) {
-		int topx = row - 1;
-		int topy = column;
-
-		int bottomx = row + 1;
-		int bottomy = column;
-
-		int rightx = row;
-		int righty = column + 1;
-
-		int leftx = row;
-		int lefty = column - 1;
-
-		int topRightx = row - 1;
-		int topRighty = column + 1;
-
-		int topLeftx = row - 1;
-		int topLefty = column - 1;
-
-		int bottomRightx = row + 1;
-		int bottomRighty = column + 1;
-
-		int bottomLeftx = row + 1;
-		int bottomLefty = column - 1;
-		// Activates surrounding buttons
-		if (row >= 0 && row < m.getHeight() && column >= 0
-				&& column < getWidth()) {
-			if (topx >= 0 && topx < m.getHeight() && topy >= 0
-					&& topy < m.getWidth()) {
-				System.out.println("Checking top");
-				DoublesquarePress(topx, topy);
-
-			}
-			if (bottomx >= 0 && bottomx < m.getHeight() && bottomy >= 0
-					&& bottomy < m.getWidth()) {
-				System.out.println("Checking bottom");
-				System.out.println("Row " + bottomx + " column " + bottomy);
-				DoublesquarePress(bottomx, bottomy);
-
-			}
-			if (rightx >= 0 && rightx < m.getHeight() && righty >= 0
-					&& righty < m.getWidth()) {
-				System.out.println("Checking right");
-				DoublesquarePress(rightx, righty);
-
-			}
-			if (leftx >= 0 && leftx < m.getHeight() && lefty >= 0
-					&& lefty < m.getWidth()) {
-				System.out.println("Checking left");
-				DoublesquarePress(leftx, lefty);
-
-			}
-			if (topRightx >= 0 && topRightx < m.getHeight() && topRighty >= 0
-					&& topRighty < m.getWidth()) {
-				System.out.println("Checking top Right");
-				DoublesquarePress(topRightx, topRighty);
-
-			}
-			if (topLeftx >= 0 && topLeftx < m.getHeight() && topLefty >= 0
-					&& topLefty < m.getWidth()) {
-				System.out.println("Checking top left");
-				DoublesquarePress(topLeftx, topLefty);
-
-			}
-			if (bottomRightx >= 0 && bottomRightx < m.getHeight()
-					&& bottomRighty >= 0 && bottomRighty < m.getWidth()) {
-				System.out.println("Checking bottom right");
-				DoublesquarePress(bottomRightx, bottomRighty);
-
-			}
-			if (bottomLeftx >= 0 && bottomLeftx < m.getHeight()
-					&& bottomLefty >= 0 && bottomLefty < m.getWidth()) {
-				System.out.println("Checking bottom left");
-				DoublesquarePress(bottomLeftx, bottomLefty);
-
-			}
-		}
 	}
 
 	public int checkNumberOfFlags(int row, int column) {
@@ -535,7 +515,8 @@ public class MinesweeperGUI extends JFrame {
 			if (bottomRightx >= 0 && bottomRightx < m.getHeight()
 					&& bottomRighty >= 0 && bottomRighty < m.getWidth()) {
 				System.out.println("Checking bottom right");
-				if (squaresArray[bottomRightx][bottomRighty].getText().equals("F")) {
+				if (squaresArray[bottomRightx][bottomRighty].getText().equals(
+						"F")) {
 					numberOfFlags++;
 				}
 
@@ -543,18 +524,20 @@ public class MinesweeperGUI extends JFrame {
 			if (bottomLeftx >= 0 && bottomLeftx < m.getHeight()
 					&& bottomLefty >= 0 && bottomLefty < m.getWidth()) {
 				System.out.println("Checking bottom left");
-				if (squaresArray[bottomLeftx][bottomLefty].getText().equals("F")) {
+				if (squaresArray[bottomLeftx][bottomLefty].getText()
+						.equals("F")) {
 					numberOfFlags++;
 				}
 
 			}
 		}
-		System.out.println("Number of flags is "+numberOfFlags);
+		System.out.println("Number of flags is " + numberOfFlags);
 		return numberOfFlags;
 
 	}
 
 	public void disableButton(JToggleButton jb) {
+		jb.setIcon(null);
 		jb.setOpaque(false);
 		jb.setEnabled(false);
 		jb.setContentAreaFilled(false);
@@ -563,25 +546,35 @@ public class MinesweeperGUI extends JFrame {
 
 	public void gameOver() {
 		System.out.println("Game over - Pressed on mine");
+		gameStatus = false;
+		// Gets Minesweeper logo
+		Image newimg = null;
+		try {
+			Image image = ImageIO
+					.read(new URL(
+							"http://upload.wikimedia.org/wikipedia/en/5/5c/Minesweeper_Icon.png"));
+			// Resizes all images
+			newimg = image.getScaledInstance(50, 50,
+					java.awt.Image.SCALE_SMOOTH);
+		} catch (Exception e) {
+			System.out.println("Couldn't load mine icon");
+		}
+
 		for (int row = 0; row < m.getHeight(); row++) {
 			for (int column = 0; column < m.getWidth(); column++) {
-				if(m.squareStatus[row][column] == SquareStatus.MINE){
-					disableButton(squaresArray[row][column]);
+				squaresArray[row][column].setEnabled(false);;
+				if (m.squareStatus[row][column] == SquareStatus.MINE) {
 					squaresArray[row][column].setText("");
 					try {
-						Image image = ImageIO
-								.read(new URL(
-										"http://upload.wikimedia.org/wikipedia/en/5/5c/Minesweeper_Icon.png"));
-						// Resizes all images
-						Image newimg = image.getScaledInstance(50, 50,
-								java.awt.Image.SCALE_SMOOTH);
-						squaresArray[row][column].setDisabledIcon(new ImageIcon(newimg));
-						squaresArray[row][column].setIcon(new ImageIcon(newimg));
+						squaresArray[row][column]
+								.setDisabledIcon(new ImageIcon(newimg));
+						squaresArray[row][column]
+								.setIcon(new ImageIcon(newimg));
 					} catch (Exception e) {
 						System.out.println("Error reading file");
 						squaresArray[row][column].setText("M");
 					}
-					
+
 				}
 			}
 		}
