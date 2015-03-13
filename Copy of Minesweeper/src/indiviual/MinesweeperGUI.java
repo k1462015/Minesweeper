@@ -165,7 +165,7 @@ public class MinesweeperGUI extends JFrame {
 		constructBoard();
 
 		// Sets up main JFrame
-		getContentPane().setBackground(Color.DARK_GRAY);
+		getContentPane().setBackground(Color.BLACK);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
