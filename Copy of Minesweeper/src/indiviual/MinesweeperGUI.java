@@ -107,6 +107,7 @@ public class MinesweeperGUI extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				setMedium();
 
 			}
@@ -185,7 +186,6 @@ public class MinesweeperGUI extends JFrame {
 		constructBoard();
 
 		// Sets up main JFrame
-		getContentPane().setBackground(Color.BLACK);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		pack();
@@ -277,9 +277,8 @@ public class MinesweeperGUI extends JFrame {
 					}
 
 				});
+				Font font = new Font("Century Gothic",Font.BOLD,15);
 				temp.setFont(new Font("Century Gothic", Font.BOLD, 15));
-				temp.setBackground(Color.BLACK);
-				temp.setForeground(Color.BLACK);
 				squaresArray[i][j] = temp;
 				board.add(temp);
 			}
@@ -549,7 +548,6 @@ public class MinesweeperGUI extends JFrame {
 	}
 
 	public void disableButton(JToggleButton jb) {
-		jb.setIcon(null);
 		jb.setOpaque(false);
 		jb.setEnabled(false);
 		jb.setContentAreaFilled(false);
