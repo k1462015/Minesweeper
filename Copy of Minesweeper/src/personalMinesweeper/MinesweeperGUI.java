@@ -1,4 +1,4 @@
-package indiviual;
+package personalMinesweeper;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -21,14 +21,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-
-
 
 public class MinesweeperGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -36,35 +33,22 @@ public class MinesweeperGUI extends JFrame {
 	private JPanel board;
 	private JToggleButton[][] squaresArray;
 	private boolean gameStatus;
-	final JRadioButton easyRb;
-	final JRadioButton mediumRb;
-	final JRadioButton hardRb;
 
 	public MinesweeperGUI(Minesweeper m) {
 		super("Minesweeper");
 		this.m = m;
-		easyRb = new JRadioButton("Easy");
-		mediumRb = new JRadioButton("Medium");
-		hardRb = new JRadioButton("Hard");
+		// try {
+		// for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		// if ("Nimbus".equals(info.getName())) {
+		// UIManager.setLookAndFeel(info.getClassName());
+		// break;
+		// }
+		// }
+		// } catch (Exception e) {
+		// // If Nimbus is not available, you can set the GUI to another look
+		// // and feel.
+		// }
 		initUi();
-	}
-
-	public void setEasy() {
-		easyRb.setSelected(true);
-		mediumRb.setSelected(false);
-		hardRb.setSelected(false);
-	}
-
-	public void setMedium() {
-		easyRb.setSelected(false);
-		mediumRb.setSelected(true);
-		hardRb.setSelected(false);
-	}
-
-	public void setHard() {
-		easyRb.setSelected(false);
-		mediumRb.setSelected(false);
-		hardRb.setSelected(true);
 	}
 
 	public void initUi() {
@@ -73,55 +57,55 @@ public class MinesweeperGUI extends JFrame {
 		JMenu menu = new JMenu("Game");
 		JMenu settings = new JMenu("Settings");
 		JMenu help = new JMenu("Help");
-		
-		//Adds exit function
-		JMenuItem exit = new JMenuItem("Exit");
-		exit.addActionListener(new ActionListener(){
+
+		// Settings menu
+		JMenuItem easy = new JMenuItem("Easy");
+		JMenuItem medium = new JMenuItem("Medium");
+		JMenuItem hard = new JMenuItem("Hard");
+
+		// Adds actionListeners to all difficulty settings
+		easy.addActionListener(new ActionListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent arg0) {
 				dispose();
-				
+				Minesweeper min = new Minesweeper(9, 9, 10);
+				MinesweeperGUI gui = new MinesweeperGUI(min);
+				gui.setSize(500, 500);
+				gui.setLocationRelativeTo(null);
 			}
-			
+
 		});
-		menu.add(exit);
+		medium.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+				Minesweeper min = new Minesweeper(16, 16, 40);
+				MinesweeperGUI gui = new MinesweeperGUI(min);
+				gui.setSize(1000, 1000);
+				gui.setLocationRelativeTo(null);
+			}
+
+		});
+		hard.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				dispose();
+				Minesweeper min = new Minesweeper(30, 16, 99);
+				MinesweeperGUI gui = new MinesweeperGUI(min);
+				gui.setSize(1600, 900);
+				gui.setLocationRelativeTo(null);
+
+			}
+
+		});
 
 		// Adds to settings menu
-		settings.add(easyRb);
-		settings.add(mediumRb);
-		settings.add(hardRb);
-
-		// ActionListener for difficulty radio buttons
-		easyRb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setEasy();
-
-			}
-
-		});
-
-		mediumRb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setMedium();
-
-			}
-
-		});
-
-		hardRb.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setHard();
-
-			}
-
-		});
+		settings.add(easy);
+		settings.add(medium);
+		settings.add(hard);
 
 		// Create Top Tool bar
 		JToolBar toolbar = new JToolBar();
@@ -136,28 +120,24 @@ public class MinesweeperGUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
-				if (easyRb.isSelected()) {
+				if (getWidth() == 500) {
 					Minesweeper min = new Minesweeper(9, 9, 10);
 					MinesweeperGUI gui = new MinesweeperGUI(min);
-					gui.setEasy();
-					gui.setSize(650, 650);
+					gui.setSize(500, 500);
 					gui.setLocationRelativeTo(null);
-				} else if (mediumRb.isSelected()) {
+				} else if (getWidth() == 1000) {
 					Minesweeper min = new Minesweeper(16, 16, 40);
 					MinesweeperGUI gui = new MinesweeperGUI(min);
-					gui.setMedium();
 					gui.setSize(1000, 1000);
 					gui.setLocationRelativeTo(null);
-				} else if (hardRb.isSelected()) {
+				} else if (getWidth() == 1600) {
 					Minesweeper min = new Minesweeper(30, 16, 99);
 					MinesweeperGUI gui = new MinesweeperGUI(min);
-					gui.setHard();
-					gui.setSize(1800, 1100);
+					gui.setSize(1600, 900);
 					gui.setLocationRelativeTo(null);
 				} else {
 					Minesweeper min = new Minesweeper(9, 9, 10);
 					MinesweeperGUI gui = new MinesweeperGUI(min);
-					gui.setEasy();
 					gui.setSize(500, 500);
 					gui.setLocationRelativeTo(null);
 				}
@@ -198,6 +178,20 @@ public class MinesweeperGUI extends JFrame {
 		board.setOpaque(false);
 		board.setLayout(new GridLayout(m.getHeight(), m.getWidth()));
 		gameStatus = true;
+
+		// Loads button icon
+		Image newimg = null;
+		try {
+			Image image = ImageIO
+					.read(new URL(
+							"https://cdn3.iconfinder.com/data/icons/softwaredemo/PNG/256x256/Box_Grey.png"));
+			// Resizes icon
+			newimg = image.getScaledInstance(50, 50,
+					java.awt.Image.SCALE_SMOOTH);
+
+		} catch (Exception e) {
+			System.out.println("Failed to get button icon");
+		}
 
 		// Adds squares to board
 		squaresArray = new JToggleButton[m.getHeight()][m.getWidth()];
@@ -278,8 +272,12 @@ public class MinesweeperGUI extends JFrame {
 
 				});
 				temp.setFont(new Font("Century Gothic", Font.BOLD, 15));
-				temp.setBackground(Color.BLACK);
-				temp.setForeground(Color.BLACK);
+				temp.setBackground(Color.WHITE);
+				temp.setForeground(Color.WHITE);
+	
+				temp.setContentAreaFilled(false);
+				temp.setBorderPainted(false);
+				temp.setIcon(new ImageIcon(newimg));
 				squaresArray[i][j] = temp;
 				board.add(temp);
 			}
@@ -307,13 +305,6 @@ public class MinesweeperGUI extends JFrame {
 
 	}
 
-	/**
-	 * Checks and presses Surrounding squares
-	 * 
-	 * @param row
-	 * @param column
-	 * @param isDoubleClick
-	 */
 	public void revealAround(int row, int column, boolean isDoubleClick) {
 		int topx = row - 1;
 		int topy = column;
@@ -559,28 +550,44 @@ public class MinesweeperGUI extends JFrame {
 	public void gameOver() {
 		System.out.println("Game over - Pressed on mine");
 		gameStatus = false;
+		// Gets Minesweeper logo
+		Image newimg = null;
+		try {
+			Image image = ImageIO
+					.read(new URL(
+							"http://upload.wikimedia.org/wikipedia/en/5/5c/Minesweeper_Icon.png"));
+			// Resizes all images
+			newimg = image.getScaledInstance(50, 50,
+					java.awt.Image.SCALE_SMOOTH);
+		} catch (Exception e) {
+			System.out.println("Couldn't load mine icon");
+		}
 
 		for (int row = 0; row < m.getHeight(); row++) {
 			for (int column = 0; column < m.getWidth(); column++) {
-				squaresArray[row][column].setEnabled(false);
-				;
+				squaresArray[row][column].setEnabled(false);;
 				if (m.squareStatus[row][column] == SquareStatus.MINE) {
-					squaresArray[row][column].setText("M");
-					squaresArray[row][column].setContentAreaFilled(false);
-					squaresArray[row][column].setBorderPainted(false);
+					squaresArray[row][column].setText("");
+					try {
+						squaresArray[row][column]
+								.setDisabledIcon(new ImageIcon(newimg));
+						squaresArray[row][column]
+								.setIcon(new ImageIcon(newimg));
+					} catch (Exception e) {
+						System.out.println("Error reading file");
+						squaresArray[row][column].setText("M");
+					}
 
 				}
 			}
 		}
-		repaint();
 		JOptionPane.showMessageDialog(getParent(), "Game over");
 	}
 
 	public static void main(String[] args) {
 		Minesweeper min = new Minesweeper(9, 9, 10);
 		MinesweeperGUI gui = new MinesweeperGUI(min);
-		gui.setEasy();
-		gui.setSize(650, 650);
+		gui.setSize(500, 500);
 		gui.setLocationRelativeTo(null);
 
 	}
