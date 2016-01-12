@@ -1,5 +1,5 @@
 # Minesweeper #
-### Task was to create minesweeper in Java, using Java Swing. ### 
+Task was to create minesweeper in Java, using Java Swing.
 ### Features: ###
 * Multiple difficulties (size of board)
 * Able to flag square
